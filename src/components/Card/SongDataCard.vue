@@ -35,7 +35,7 @@
         <div class="album text-hidden">
           <SvgIcon name="Album" :depth="3" />
           <n-text v-if="isObject(data.album)" class="album-text">
-            {{ data.album?.name || "未知专辑" }}
+            {{ getAlbumName(data.album) || "未知专辑" }}
           </n-text>
           <n-text v-else class="album-text">
             {{ data.album || "未知专辑" }}
@@ -53,7 +53,7 @@
 import type { SongType } from "@/types/main";
 import { coverLoaded } from "@/utils/helper";
 import { isObject } from "lodash-es";
-import { removeBrackets } from "@/utils/format";
+import { getAlbumName, removeBrackets } from "@/utils/format";
 import { useSettingStore } from "@/stores";
 
 const settingStore = useSettingStore();

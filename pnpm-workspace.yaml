@@ -4,3 +4,12 @@ packages:
   - "native/ferrous-opencc-wasm"
   - "native/taskbar-lyric"
   - "native/tools"
+allowBuilds:
+  '@parcel/watcher': true
+  better-sqlite3: true
+  core-js: true
+  electron: true
+  electron-winstaller: true
+  esbuild: true
+  sharp: true
+  wasm-pack: true

@@ -169,9 +169,9 @@ import { useMusicStore, useDataStore } from "@/stores";
 import { textRule } from "@/utils/rules";
 import { copyData } from "@/utils/helper";
 import { matchSong, songLyric } from "@/api/song";
-import { debounce, isArray, isEmpty, isObject } from "lodash-es";
+import { debounce, isEmpty } from "lodash-es";
 import { useBlobURLManager } from "@/core/resource/BlobURLManager";
-import { formatSongsList } from "@/utils/format";
+import { formatSongsList, getAlbumName, getArtistsText } from "@/utils/format";
 
 const props = defineProps<{
   song: SongType;
@@ -290,10 +290,8 @@ const onlineMatch = debounce(
         infoFormData.value = {
           ...infoFormData.value,
           name: songData.name,
-          artist: isArray(songData.artists)
-            ? songData.artists.map((ar: { name: string }) => ar.name).join(" / ")
-            : songData.artists,
-          album: isObject(songData.album) ? songData.album.name : songData.album,
+          artist: getArtistsText(songData.artists),
+          album: getAlbumName(songData.album),
           alia: songData.alia,
         };
         // 获取歌词

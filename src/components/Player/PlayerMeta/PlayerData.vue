@@ -117,18 +117,18 @@
         <span
           v-if="isObject(musicStore.playSong.album)"
           class="name-text text-hidden"
-          @click="jumpPage({ name: 'album', query: { id: musicStore.playSong.album.id } })"
+          @click="jumpPage({ name: 'album', query: { id: getAlbumId(musicStore.playSong.album) } })"
         >
           {{
             (settingStore.hideBracketedContent
-              ? removeBrackets(musicStore.playSong.album?.name)
-              : musicStore.playSong.album?.name) || "未知专辑"
+              ? removeBrackets(getAlbumName(musicStore.playSong.album))
+              : getAlbumName(musicStore.playSong.album)) || "未知专辑"
           }}
         </span>
         <span v-else class="name-text text-hidden">
           {{
             (settingStore.hideBracketedContent
-              ? removeBrackets(musicStore.playSong.album)
+              ? removeBrackets(getAlbumName(musicStore.playSong.album))
               : musicStore.playSong.album) || "未知专辑"
           }}
         </span>
@@ -146,7 +146,7 @@
 import type { RouteLocationRaw } from "vue-router";
 import { useMusicStore, useStatusStore, useSettingStore } from "@/stores";
 import { debounce, isObject } from "lodash-es";
-import { removeBrackets } from "@/utils/format";
+import { getAlbumId, getAlbumName, removeBrackets } from "@/utils/format";
 import { SongUnlockServer } from "@/core/player/SongManager";
 import { useLyricManager } from "@/core/player/LyricManager";
 import { usePlayerController } from "@/core/player/PlayerController";

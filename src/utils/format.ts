@@ -5,6 +5,41 @@ import { handleSongQuality } from "./helper";
 import { msToTime } from "./time";
 
 /**
+ * 获取专辑名称
+ * @param album 专辑字段
+ * @returns 专辑名称字符串
+ */
+export const getAlbumName = (album: MetaData | string | undefined): string => {
+  if (!album) return "";
+  return typeof album === "object" ? album.name : album;
+};
+
+/**
+ * 获取专辑 id
+ * @param album 专辑字段
+ * @returns 专辑 id，album 为字符串时返回 undefined
+ */
+export const getAlbumId = (album: MetaData | string | undefined): number | undefined =>
+  typeof album === "object" ? album.id : undefined;
+
+/**
+ * 拼接歌手列表
+ * @param artists 歌手字段
+ * @param separators 分隔符
+ * @returns 拼接后的歌手字符串
+ */
+export const getArtistsText = (
+  artists: MetaData[] | string | undefined,
+  separators: string = " / ",
+): string =>
+  Array.isArray(artists)
+    ? artists
+        .map((a) => a.name)
+        .filter(Boolean)
+        .join(separators)
+    : artists ?? "";
+
+/**
  * 格式化评论数量
  * @param count 评论数量
  * @returns 格式化后的评论数量

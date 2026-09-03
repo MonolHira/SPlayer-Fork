@@ -225,11 +225,10 @@ class LyricManager {
   }
 
   /**
-   * 按名称搜索网易云，匹配本地歌曲对应的网易云歌曲 id
-   * @param song 歌曲对象
-   * @returns 匹配到的网易云歌曲 id，未匹配到返回 undefined
+   * 归一化歌名/专辑名/歌手名，去掉括号、空格等干扰便于精确比较
+   * @param name 名称字段
+   * @returns 归一化后的名称
    */
-  // 归一化歌名/专辑名/歌手名，去掉括号、空格等干扰，便于精确比较
   private normalizeMatchName(name?: unknown): string {
     if (name == null) return "";
     return String(name)
@@ -238,7 +237,11 @@ class LyricManager {
       .toLowerCase();
   }
 
-  // 从本地歌曲的 artists 字段提取歌手名单，兼容数组对象与按 "/" 分割的字符串
+  /**
+   * 提取歌手名单，兼容数组对象与按 "/" 分割的字符串
+   * @param artists 歌手字段
+   * @returns 歌手名字数组
+   */
   private extractArtistNames(artists: MetaData[] | string | undefined): string[] {
     if (Array.isArray(artists)) return artists.map((a) => a?.name ?? "");
     if (typeof artists === "string") return artists.split(/[/、,，;；]/).map((s) => s.trim());

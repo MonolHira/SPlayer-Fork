@@ -36,7 +36,7 @@
         <div v-if="isObject(musicStore.personalFMSong.album)" class="album text-hidden">
           <SvgIcon name="Album" :depth="3" />
           <n-text class="album-text">
-            {{ musicStore.personalFMSong.album?.name || "未知专辑" }}
+            {{ getAlbumName(musicStore.personalFMSong.album) || "未知专辑" }}
           </n-text>
         </div>
         <!-- 功能 -->
@@ -90,6 +90,7 @@ import { useSongManager } from "@/core/player/SongManager";
 import { useMusicStore, useStatusStore, useSettingStore } from "@/stores";
 import { coverLoaded } from "@/utils/helper";
 import { debounce, isObject } from "lodash-es";
+import { getAlbumName } from "@/utils/format";
 
 const musicStore = useMusicStore();
 const statusStore = useStatusStore();

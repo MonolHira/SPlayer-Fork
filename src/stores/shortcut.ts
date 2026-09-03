@@ -29,7 +29,7 @@ interface ShortcutStore {
 export const useShortcutStore = defineStore("shortcut", {
   state: (): ShortcutStore => ({
     // 全局快捷键开启
-    globalOpen: true,
+    globalOpen: false,
     // 全部快捷键
     shortcutList: {
       // 播放或暂停

@@ -2,7 +2,7 @@
   <n-layout-header class="nav">
     <!-- 页面导航 -->
     <n-flex class="page-control">
-      <Logo v-if="!isDesktop" :size="40" @click="router.push('/')" />
+      <Logo v-if="!isDesktop" :size="40" @click="handleLogoClick" />
       <template v-if="!isSmallScreen">
         <n-button :focusable="false" tertiary circle @click="router.go(-1)">
           <template #icon>
@@ -154,6 +154,11 @@ const router = useRouter();
 const settingStore = useSettingStore();
 const statusStore = useStatusStore();
 const { isDesktop, isSmallScreen } = useMobile();
+
+// 关闭在线服务时，LOGO 定位到音乐库，否则定位到首页
+const handleLogoClick = () => {
+  router.push(settingStore.useOnlineService ? "/" : "/local");
+};
 
 // 更新按钮提示
 const updateBtnTitle = computed(() => {

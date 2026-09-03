@@ -2,7 +2,7 @@
 <template>
   <div class="sider-all">
     <!-- Logo -->
-    <div :class="['logo', { collapsed: statusStore.menuCollapsed }]" @click="router.push('/')">
+    <div :class="['logo', { collapsed: statusStore.menuCollapsed }]" @click="handleLogoClick">
       <Logo />
       <n-text>SPlayer</n-text>
     </div>
@@ -17,11 +17,17 @@
 </template>
 
 <script setup lang="ts">
-import { useStatusStore, useMusicStore } from "@/stores";
+import { useSettingStore, useStatusStore, useMusicStore } from "@/stores";
 
 const router = useRouter();
 const musicStore = useMusicStore();
 const statusStore = useStatusStore();
+const settingStore = useSettingStore();
+
+// 关闭在线服务时，LOGO 定位到音乐库，否则定位到首页
+const handleLogoClick = () => {
+  router.push(settingStore.useOnlineService ? "/" : "/local");
+};
 </script>
 
 <style lang="scss" scoped>

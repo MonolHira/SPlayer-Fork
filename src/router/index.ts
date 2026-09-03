@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory, Router } from "vue-router";
+import { useSettingStore } from "@/stores";
 import { openUserLogin } from "@/utils/modal";
 import { isElectron } from "@/utils/env";
 import { isLogin } from "@/utils/auth";
@@ -33,6 +34,11 @@ router.beforeEach((to, from, next) => {
   // 进度条
   if (!isElectron && to.path !== from.path) {
     window.$loadingBar?.start();
+  }
+  // 关闭在线服务时，首页重定向到音乐库
+  if (to.name === "home" && !useSettingStore().useOnlineService) {
+    next({ path: "/local" });
+    return;
   }
   // 需要登录
   if (to.meta.needLogin && !isLogin()) {

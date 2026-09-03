@@ -235,6 +235,8 @@ export interface SettingState {
   lyricPriority: LyricPriority;
   /** 本地歌曲使用 QM 歌词匹配 */
   localLyricQQMusicMatch: boolean;
+  /** 本地歌曲匹配在线歌词 */
+  localLyricOnlineMatch: boolean;
   /** AMLL DB 服务地址 */
   amllDbServer: string;
   /** 菜单显示封面 */
@@ -567,6 +569,7 @@ export const useSettingStore = defineStore("setting", {
     enableQQMusicLyric: false,
     lyricPriority: "auto",
     localLyricQQMusicMatch: false,
+    localLyricOnlineMatch: false,
     amllDbServer: defaultAMLLDbServer,
     showWordLyrics: true,
     showTran: true,

@@ -1,10 +1,11 @@
 import { qqMusicMatch } from "@/api/qqmusic";
 import { songLyric, songLyricTTML } from "@/api/song";
+import { SearchTypes, searchResult } from "@/api/search";
 import { keywords as defaultKeywords, regexes as defaultRegexes } from "@/assets/data/exclude";
 import { useCacheManager } from "@/core/resource/CacheManager";
 import { useMusicStore, useSettingStore, useStatusStore, useStreamingStore } from "@/stores";
 import type { LyricPriority, SongLyric } from "@/types/lyric";
-import type { SongType } from "@/types/main";
+import type { MetaData, SongType } from "@/types/main";
 import { isElectron } from "@/utils/env";
 import { applyBracketReplacement } from "@/utils/lyric/lyricFormat";
 import { applyProfanityUncensor } from "@/utils/lyric/lyricProfanity";
@@ -224,13 +225,92 @@ class LyricManager {
   }
 
   /**
+   * 按名称搜索网易云，匹配本地歌曲对应的网易云歌曲 id
+   * @param song 歌曲对象
+   * @returns 匹配到的网易云歌曲 id，未匹配到返回 undefined
+   */
+  // 归一化歌名/专辑名/歌手名，去掉括号、空格等干扰，便于精确比较
+  private normalizeMatchName(name?: unknown): string {
+    if (name == null) return "";
+    return String(name)
+      .replace(/（.*?）|\(.*?\)|【.*?】|\[.*?\]/g, "")
+      .replace(/\s+/g, "")
+      .toLowerCase();
+  }
+
+  // 从本地歌曲的 artists 字段提取歌手名单，兼容数组对象与按 "/" 分割的字符串
+  private extractArtistNames(artists: MetaData[] | string | undefined): string[] {
+    if (Array.isArray(artists)) return artists.map((a) => a?.name ?? "");
+    if (typeof artists === "string") return artists.split(/[/、,，;；]/).map((s) => s.trim());
+    return [];
+  }
+
+  /**
+   * 按名称搜索网易云，匹配本地歌曲对应的网易云歌曲 id
+   * 匹配方式：优先歌名精确匹配，再按专辑名、多歌手包含情况综合评分选最优
+   * @param song 歌曲对象
+   * @returns 匹配到的网易云歌曲 id，未匹配到返回 undefined
+   */
+  private async matchNeteaseLyricId(song: SongType): Promise<number | undefined> {
+    try {
+      const artistsStr = this.extractArtistNames(song.artists).join(" ");
+      const keywords = `${song.name} ${artistsStr}`.trim();
+      const data: any = await searchResult(keywords, 20, 0, SearchTypes.Single);
+      const songs = data?.result?.songs;
+      if (!Array.isArray(songs) || !songs.length) {
+        window.logger?.warn(`❌ 「${song.name}」在线搜索无结果`);
+        return undefined;
+      }
+
+      const targetName = this.normalizeMatchName(song.name);
+      const targetAlbum = this.normalizeMatchName(
+        typeof song.album === "string" ? song.album : song.album?.name,
+      );
+      const targetArtists = this.extractArtistNames(song.artists)
+        .map((n) => this.normalizeMatchName(n))
+        .filter(Boolean);
+
+      // 综合评分：专辑名匹配 +2，命中一个本地歌手 +1，取分数最高者为匹配结果
+      let best: { id: number; score: number } | undefined;
+      for (const s of songs) {
+        const sName = this.normalizeMatchName(s?.name);
+        // 歌名必须精确匹配，否则跳过，避免误匹配到其他歌曲
+        if (!sName || sName !== targetName) continue;
+
+        const sAlbum = this.normalizeMatchName(s?.al?.name);
+        const sArtists = (s?.ar ?? []).map(
+          (a: { name?: string }) => this.normalizeMatchName(a?.name),
+        );
+
+        let score = 0;
+        if (targetAlbum && sAlbum && sAlbum === targetAlbum) score += 2;
+        for (const artist of targetArtists) {
+          if (sArtists.includes(artist)) score += 1;
+        }
+
+        if (!best || score > best.score) best = { id: Number(s.id), score };
+      }
+
+      if (best && Number.isFinite(best.id) && best.id > 0) {
+        window.logger?.info(`✅ 「${song.name}」匹配到网易云 id: ${best.id}`);
+        return best.id;
+      }
+      window.logger?.warn(`⚠️ 「${song.name}」未匹配到在线歌词`);
+      return undefined;
+    } catch (error) {
+      window.logger?.error(`❌ 匹配网易云 id 失败: ${error}`);
+      return undefined;
+    }
+  }
+
+  /**
    * 处理在线歌词
    * @param song 歌曲对象
    * @returns 歌词数据和元数据
    */
-  private async fetchOnlineLyric(song: SongType): Promise<LyricFetchResult> {
+  private async fetchOnlineLyric(song: SongType, neteaseId?: number): Promise<LyricFetchResult> {
     const settingStore = useSettingStore();
-    const id = song.type === "radio" ? song.dj?.id : song.id;
+    const id = neteaseId ?? (song.type === "radio" ? song.dj?.id : song.id);
     if (!id)
       return {
         data: { lrcData: [], yrcData: [] },
@@ -848,6 +928,16 @@ class LyricManager {
         } else if (song.path) {
           // 本地文件
           fetchResult = await this.fetchLocalLyric(song);
+          // 本地无歌词且开启"本地歌曲匹配在线歌词"时，按在线逻辑匹配
+          if (
+            settingStore.localLyricOnlineMatch &&
+            isEmpty(fetchResult.data.lrcData) &&
+            isEmpty(fetchResult.data.yrcData)
+          ) {
+            // 按名称搜索网易云匹配出真实歌曲 id，再走原有在线歌词逻辑
+            const neteaseId = await this.matchNeteaseLyricId(song);
+            fetchResult = await this.fetchOnlineLyric(song, neteaseId);
+          }
         } else {
           // 在线获取
           fetchResult = await this.fetchOnlineLyric(song);

@@ -333,6 +333,18 @@ export const useLyricSettings = (): SettingConfig => {
                   set: (v) => (settingStore.localLyricQQMusicMatch = v),
                 }),
               },
+              {
+                key: "localLyricOnlineMatch",
+                label: "本地音乐使用在线歌词",
+                type: "switch",
+                description:
+                  "无本地歌词时，尝试匹配网络歌词，由于该功能高度依赖本地音乐内嵌标签的准确性，若标签错误可能会造成匹配错误",
+                show: isElectron,
+                value: computed({
+                  get: () => settingStore.localLyricOnlineMatch,
+                  set: (v) => (settingStore.localLyricOnlineMatch = v),
+                }),
+              },
             ],
           },
           {

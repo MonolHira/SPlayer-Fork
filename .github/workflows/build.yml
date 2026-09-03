@@ -1,0 +1,150 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+# 同一个 tag 的发布串行执行，避免并发上传资源产生竞态
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # ===================================================================
+  #  并行构建所有平台和架构
+  # ===================================================================
+  build:
+    name: Build on ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      # 矩阵策略
+      # 任意一个矩阵任务失败，其他任务也直接失败
+      fail-fast: true
+      matrix:
+        include:
+          - name: Windows x64
+            runner: windows-latest
+            target: windows-x64
+
+    # 开始步骤
+    steps:
+      # 检出 Git 仓库
+      - name: Check out git repository
+        uses: actions/checkout@v7
+      # 设置 pnpm & Node.js
+      - name: Setup pnpm & Node.js
+        uses: pnpm/setup@v2
+        with:
+            install: false
+      - run: node --version
+      - run: pnpm --version
+      # 设置 Rust
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      # 清理旧的构建产物
+      - name: Clean workspace
+        run: |
+          Write-Host "🧹 Cleaning workspace, node_modules, and Electron caches..."
+          if (Test-Path dist) { Remove-Item -Recurse -Force dist }
+          if (Test-Path out) { Remove-Item -Recurse -Force out }
+          if (Test-Path node_modules) { Remove-Item -Recurse -Force node_modules }
+
+          if (Test-Path "$env:LOCALAPPDATA\electron-builder") {
+            Remove-Item "$env:LOCALAPPDATA\electron-builder" -Recurse -Force -ErrorAction SilentlyContinue
+          }
+          if (Test-Path "$env:LOCALAPPDATA\electron") {
+            Remove-Item "$env:LOCALAPPDATA\electron" -Recurse -Force -ErrorAction SilentlyContinue
+          }
+          if (Test-Path "$env:USERPROFILE\.pnpm-store") {
+            Remove-Item "$env:USERPROFILE\.pnpm-store" -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
+      # 复制环境变量文件
+      - name: Copy .env file
+        run: |
+          if (-not (Test-Path .env)) {
+            Copy-Item .env.example .env
+          } else {
+            Write-Host ".env file already exists. Skipping the copy step."
+          }
+
+      # 安装项目依赖
+      - name: Install dependencies
+        run: pnpm install
+
+      # 构建 Electron App
+      - name: Build
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: pnpm build:win -- --x64
+
+      # 合并所有构建
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: SPlayer-${{ matrix.name }}
+          path: dist/*.*
+
+  # ===================================================================
+  #  Create & Publish GitHub Release
+  # ===================================================================
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      # 整理待发布资源
+      - name: Prepare release assets
+        shell: bash
+        run: |
+          npm install --no-save --prefix "$RUNNER_TEMP/jsyaml" js-yaml@4.1.0
+          NODE_PATH="$RUNNER_TEMP/jsyaml/node_modules" \
+            node .github/scripts/prepare-release-assets.cjs artifacts release-assets
+          echo "待发布资源："
+          ls -1 release-assets
+
+      # 用官方 gh CLI 确定性创建并发布 Release（替代有重复草稿/竞态问题的第三方 action）
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          # 重跑场景
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes
+          fi
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$TAG" \
+            --generate-notes \
+            --verify-tag \
+            --draft \
+            release-assets/*

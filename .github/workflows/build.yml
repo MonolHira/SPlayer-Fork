@@ -80,14 +80,14 @@ jobs:
 
       # 安装项目依赖
       - name: Install dependencies
-        run: pnpm install
-        run: pnpm postinstall
+        run: |
+          pnpm install
+          pnpm postinstall
 
       # 构建 Electron App
       - name: Build Release
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: pnpm build:win -- --${{ matrix.arch }}
 

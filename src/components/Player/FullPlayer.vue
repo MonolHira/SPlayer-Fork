@@ -257,6 +257,23 @@ const playerLeave = () => {
   }
 };
 
+// 鼠标是否停留在浮层（如音质切换）上
+let floatingLayerEntered = false;
+const handleFloatingLayerMouseOver = (e: MouseEvent) => {
+  if (!statusStore.showFullPlayer) return;
+  const target = e.target as HTMLElement | null;
+  const inFloatingLayer = !!target?.closest?.(".v-binder-follower-container");
+  if (inFloatingLayer === floatingLayerEntered) return;
+  floatingLayerEntered = inFloatingLayer;
+  // 浮层由 Teleport 渲染到 body，鼠标在其上不会触发 full-player 事件，
+  // 需要视为操作区以暂停自动隐藏，避免锚点隐藏后浮层重定位到左上角
+  if (inFloatingLayer) {
+    stopHide();
+  } else {
+    resumeHide();
+  }
+};
+
 watch(
   () => statusStore.mainColor,
   (newVal) => {
@@ -266,6 +283,7 @@ watch(
 
 onMounted(() => {
   mainCoverColor.value = statusStore.mainColor;
+  document.addEventListener("mouseover", handleFloatingLayerMouseOver);
   if (isElectron && settingStore.preventSleep) {
     window.electron.ipcRenderer.send("prevent-sleep", true);
   }
@@ -273,6 +291,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   stopShow();
+  document.removeEventListener("mouseover", handleFloatingLayerMouseOver);
   if (isElectron) window.electron.ipcRenderer.send("prevent-sleep", false);
 });
 </script>

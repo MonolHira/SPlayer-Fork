@@ -47,6 +47,7 @@
             <!-- 倒计时行 -->
             <div
               v-if="item.type === 'countdown'"
+              :id="`lrc-cd-${index}`"
               class="countdown-line"
               :style="{
                 animationPlayState: statusStore.playStatus ? 'running' : 'paused',
@@ -242,6 +243,17 @@ const activeLineIndices = computed<number[]>(() => {
       activeCandidates.push(i);
     }
   }
+  // 开头倒计时行活跃时，滚动与高亮目标应为其后第一句歌词
+  if (activeCandidates.length > 0) {
+    const firstActive = activeCandidates[0];
+    const item = lyrics[firstActive];
+    if (item && item.type === "countdown" && firstActive === 0) {
+      for (let i = 1; i < lyrics.length; i++) {
+        if (lyrics[i].type === "lyric") return [i];
+      }
+    }
+    return activeCandidates;
+  }
   // 如果没有活跃行，找最近的上一行
   if (activeCandidates.length === 0 && currentSeek > 0) {
     // 找到第一个开始时间大于当前时间的行
@@ -251,6 +263,7 @@ const activeLineIndices = computed<number[]>(() => {
     });
     if (nextIndex === -1) return [lyrics.length - 1]; // 都在后面，取最后一行
     if (nextIndex > 0) return [nextIndex - 1]; // 取前一行
+    return [0]; // 前奏（第一句歌词未开始）：指向第一项，触发正常滚动
   }
   return activeCandidates;
 });
@@ -356,7 +369,11 @@ const lyricsScroll = (index: number) => {
   if (!container) return;
   // 用户滚动时不自动滚动
   if (userScrolling.value) return;
-  const lrcItemDom = document.getElementById(index >= 0 ? `lrc-${index}` : "lrc-placeholder");
+  let lrcItemDom = document.getElementById(index >= 0 ? `lrc-${index}` : "lrc-placeholder");
+  // 开头倒计时行没有 lrc-{index}，回退查找倒计时行 id
+  if (!lrcItemDom && index === 0) {
+    lrcItemDom = document.getElementById("lrc-cd-0");
+  }
   if (!lrcItemDom) return;
   // 计算目标滚动位置
   const containerHeight = container.clientHeight;

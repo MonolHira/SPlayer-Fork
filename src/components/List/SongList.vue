@@ -405,8 +405,7 @@ const listData = computed<SongType[]>(() => {
 
 // 虚拟列表项类型
 type VirtualListItem =
-  | { type: "song"; data: SongType; key: number }
-  | { type: "footer"; data: null; key: string };
+  { type: "song"; data: SongType; key: number } | { type: "footer"; data: null; key: string };
 
 // 虚拟列表数据（包含歌曲和 footer）
 const virtualListItems = computed<VirtualListItem[]>(() => {
@@ -556,13 +555,13 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .song-list {
   height: 100%;
+  // 作为内部虚拟列表离场 absolute 的包含块，限定为自身宽度
+  position: relative;
   border-radius: 12px 0 0 12px;
   overflow: hidden;
-  // 离场时脱离文档流，避免新旧内容同时存在时布局跳动
+  // 离场时保持文档流，避免 absolute 定位到全宽包含块导致横向撑满
   &.fade-leave-active {
-    position: absolute;
-    left: 0;
-    right: 0;
+    position: relative;
     pointer-events: none;
   }
   .song-card {

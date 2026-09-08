@@ -6,7 +6,10 @@
  */
 
 import { spawn } from "child_process";
+import { writeFileSync } from "fs";
 import os from "os";
+import path from "path";
+import packageJson from "../package.json";
 
 // 检测操作系统平台
 const platform = os.platform();
@@ -14,6 +17,32 @@ const isWindows = platform === "win32";
 const isMacOS = platform === "darwin";
 
 console.log(`🚀 检测到操作系统: ${platform}`);
+
+// 根据 package.json 的 github 字段动态生成 dev-app-update.yml（与主进程更新源保持一致）
+const syncDevUpdateConfig = (): void => {
+  try {
+    const url = packageJson.github || "";
+    const match =
+      url.match(/github\.com\/([^/]+)\/([^/]+)/) || url.match(/github:([^/]+)\/([^/]+)/);
+    if (!match) return;
+    const owner = match[1];
+    const repo = match[2].replace(/\.git$/, "");
+    writeFileSync(
+      path.resolve(import.meta.dirname, "../dev-app-update.yml"),
+      `provider: github
+owner: "${owner}"
+repo: "${repo}"
+`,
+      "utf-8",
+    );
+    console.log(`📦 已同步 dev-app-update.yml -> ${owner}/${repo}`);
+  } catch (error) {
+    console.warn("⚠️  生成 dev-app-update.yml 失败，将沿用现有文件:", error);
+  }
+};
+
+// 同步更新源配置（根据 package.json 生成 dev-app-update.yml）
+syncDevUpdateConfig();
 
 // 设置环境变量
 const env: NodeJS.ProcessEnv = { ...process.env };

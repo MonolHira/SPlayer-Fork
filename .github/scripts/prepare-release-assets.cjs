@@ -30,9 +30,9 @@ if (!srcDir || !outDir) {
 }
 
 /** 需要跨架构合并的更新清单 */
-const MERGE_MANIFESTS = new Set(["latest.yml", "latest-mac.yml"]);
+const MERGE_MANIFESTS = Object.fromEntries(["latest.yml", "latest-mac.yml"].map((k) => [k, true]));
 /** 不需要上传的文件 */
-const SKIP_FILES = new Set(["builder-debug.yml"]);
+const SKIP_FILES = Object.fromEntries(["builder-debug.yml"].map((k) => [k, true]));
 
 /** 递归收集文件（跳过 *-unpacked 目录） */
 function walk(dir, out = []) {
@@ -51,42 +51,42 @@ function walk(dir, out = []) {
 fs.mkdirSync(outDir, { recursive: true });
 
 /** name -> 解析后的清单文档数组 */
-const manifestDocs = new Map();
+const manifestDocs = Object.create(null);
 /** 已写入输出目录的文件名 */
-const seen = new Set();
+const seen = Object.create(null);
 
 for (const file of walk(srcDir)) {
   const base = path.basename(file);
-  if (SKIP_FILES.has(base)) continue;
+  if (SKIP_FILES[base]) continue;
 
-  if (MERGE_MANIFESTS.has(base)) {
+  if (MERGE_MANIFESTS[base]) {
     const doc = yaml.load(fs.readFileSync(file, "utf8"));
-    if (!manifestDocs.has(base)) manifestDocs.set(base, []);
-    manifestDocs.get(base).push(doc);
+    if (!manifestDocs[base]) manifestDocs[base] = [];
+    manifestDocs[base].push(doc);
     continue;
   }
 
-  if (seen.has(base)) {
+  if (seen[base]) {
     console.warn(`⚠️  跳过重复同名文件: ${base}`);
     continue;
   }
-  seen.add(base);
+  seen[base] = true;
   fs.copyFileSync(file, path.join(outDir, base));
 }
 
-for (const [name, docs] of manifestDocs) {
+for (const [name, docs] of Object.entries(manifestDocs)) {
   let merged;
   if (docs.length === 1) {
     merged = docs[0];
   } else {
     merged = { ...docs[0] };
-    const byUrl = new Map();
+    const byUrl = Object.create(null);
     for (const doc of docs) {
       for (const f of doc.files || []) {
-        if (!byUrl.has(f.url)) byUrl.set(f.url, f);
+        if (!byUrl[f.url]) byUrl[f.url] = f;
       }
     }
-    merged.files = [...byUrl.values()];
+    merged.files = Object.values(byUrl);
     // 基准 path/sha512 优先指向 x64（多数用户）；electron-updater v6 仍会按架构从 files 中匹配
     const x64 = merged.files.find((f) => /x64|x86_64/i.test(f.url));
     if (x64) {

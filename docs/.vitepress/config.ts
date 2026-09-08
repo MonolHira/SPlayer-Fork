@@ -8,7 +8,7 @@ export default defineConfig({
   ignoreDeadLinks: true,
   head: [
     ["link", { rel: "icon", href: "/favicon.png" }],
-    ["meta", { name: "author", content: "imsyy" }],
+    ["meta", { name: "author", content: "MonolHira" }],
     ["meta", { name: "keywords", content: "SPlayer,音乐播放器,网易云音乐,Electron,Vue3" }],
   ],
   themeConfig: {
@@ -20,8 +20,7 @@ export default defineConfig({
       { text: "下载", link: "/download" },
       { text: "使用指南", link: "/guide" },
       { text: "API", link: "/api" },
-      { text: "SPlayer-Next", link: "https://github.com/SPlayer-Dev/SPlayer-Next" },
-      { text: "GitHub", link: "https://github.com/SPlayer-Dev/SPlayer" },
+      { text: "GitHub", link: "https://github.com/MonolHira/SPlayer-Fork" },
     ],
 
     sidebar: [
@@ -65,15 +64,15 @@ export default defineConfig({
       label: "文章目录",
     },
 
-    socialLinks: [{ icon: "github", link: "https://github.com/SPlayer-Dev/SPlayer" }],
+    socialLinks: [{ icon: "github", link: "https://github.com/MonolHira/SPlayer-Fork" }],
 
     footer: {
       message: "基于 AGPL-3.0 许可发布",
-      copyright: "Copyright © 2025-present imsyy",
+      copyright: "Copyright © 2025-present MonolHira",
     },
 
     editLink: {
-      pattern: "https://github.com/SPlayer-Dev/SPlayer/edit/dev/docs/:path",
+      pattern: "https://github.com/MonolHira/SPlayer-Fork/edit/dev/docs/:path",
       text: "查看或编辑此页",
     },
 

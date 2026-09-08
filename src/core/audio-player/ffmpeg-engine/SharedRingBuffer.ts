@@ -49,13 +49,9 @@ export class SharedRingBuffer {
       const readPos = Atomics.load(this.header, IDX_READ);
 
       // 计算可用空间
-      let available = 0;
-      if (writePos >= readPos) {
-        //  保留 1 字节 gap
-        available = this.capacity - writePos + readPos - 1;
-      } else {
-        available = readPos - writePos - 1;
-      }
+      // 保留 1 字节 gap
+      const available =
+        writePos >= readPos ? this.capacity - writePos + readPos - 1 : readPos - writePos - 1;
 
       if (available === 0) {
         // 缓冲区满了，等待 10ms 再重试
@@ -129,12 +125,8 @@ export class SharedRingBuffer {
         continue;
       }
 
-      let available = 0;
-      if (writePos > readPos) {
-        available = writePos - readPos;
-      } else {
-        available = this.capacity - readPos + writePos;
-      }
+      const available =
+        writePos > readPos ? writePos - readPos : this.capacity - readPos + writePos;
 
       const needed = size - totalRead;
       const toRead = Math.min(available, needed);

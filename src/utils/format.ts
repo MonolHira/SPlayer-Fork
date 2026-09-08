@@ -37,7 +37,7 @@ export const getArtistsText = (
         .map((a) => a.name)
         .filter(Boolean)
         .join(separators)
-    : artists ?? "";
+    : (artists ?? "");
 
 /**
  * 格式化评论数量

@@ -5,7 +5,7 @@ packages:
   - "native/taskbar-lyric"
   - "native/tools"
 allowBuilds:
-  '@parcel/watcher': true
+  "@parcel/watcher": true
   better-sqlite3: true
   core-js: true
   electron: true
@@ -13,3 +13,19 @@ allowBuilds:
   esbuild: true
   sharp: true
   wasm-pack: true
+minimumReleaseAgeExclude:
+  - "@typescript-eslint/eslint-plugin@8.70.0"
+  - "@typescript-eslint/parser@8.70.0"
+  - "@typescript-eslint/project-service@8.70.0"
+  - "@typescript-eslint/scope-manager@8.70.0"
+  - "@typescript-eslint/tsconfig-utils@8.70.0"
+  - "@typescript-eslint/type-utils@8.70.0"
+  - "@typescript-eslint/types@8.70.0"
+  - "@typescript-eslint/typescript-estree@8.70.0"
+  - "@typescript-eslint/utils@8.70.0"
+  - "@typescript-eslint/visitor-keys@8.70.0"
+  - app-builder-lib@26.16.1
+  - dmg-builder@26.16.1
+  - electron-builder-squirrel-windows@26.16.1
+  - electron-builder@26.16.1
+  - typescript-eslint@8.70.0

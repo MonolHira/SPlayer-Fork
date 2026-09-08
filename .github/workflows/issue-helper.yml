@@ -28,8 +28,8 @@ jobs:
                 `🚀 我们已经收到您的反馈，会尽快确认你的问题`,
                 ``,
                 `在等待回复期间，您可以：`,
-                `  - 📖 查看 [项目文档](https://github.com/SPlayer-Dev/SPlayer/blob/dev/README.md)`,
-                `  - 🔍 搜索 [现有 Issues](https://github.com/SPlayer-Dev/SPlayer/issues) 查看是否有类似问题`,
+                `  - 📖 查看 [项目文档](https://github.com/MonolHira/SPlayer-Fork/blob/dev/README.md)`,
+                `  - 🔍 搜索 [现有 Issues](https://github.com/MonolHira/SPlayer-Fork/issues) 查看是否有类似问题`,
               ].join('\n'),
             });
 
@@ -71,7 +71,7 @@ jobs:
               body: [
                 `🤝 您好 @${login}，感谢您的反馈！`,
                 `由于缺少复现步骤，我们无法重现问题，因此无法修复`,
-                `请确保您已经详细描述了问题的复现步骤，维护团队会尽快查看`,
+                `请确保您已经详细描述了问题的复现步骤，维护者会尽快查看`,
               ].join('\n'),
             });
 
@@ -115,7 +115,7 @@ jobs:
               body: [
                 `🤝 您好 @${login}，感谢您的反馈！`,
                 `由于无法复现问题，我们无法修复`,
-                `请确保您已经详细描述了问题的复现步骤，维护团队会尽快查看`,
+                `请确保您已经详细描述了问题的复现步骤，维护者会尽快查看`,
               ].join('\n'),
             });
 

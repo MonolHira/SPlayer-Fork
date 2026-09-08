@@ -6,7 +6,7 @@ permissions:
 
 on:
   schedule:
-    - cron: "0 */6 * * *" # 每 6 小时运行一次
+    - cron: "0 */12 * * *" # 每 12 小时运行一次（每天两次）
   workflow_dispatch: # 可手动运行
 
 jobs:

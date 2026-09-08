@@ -157,30 +157,6 @@ export DISPLAY=:0
 ./SPlayer.AppImage --no-sandbox
 ```
 
-## Docker 容器
-
-在 Docker 中运行需要额外的安全配置：
-
-```dockerfile
-# Dockerfile 示例
-FROM node:24
-
-# 安装依赖
-RUN apt-get update && apt-get install -y \
-    libnss3 libatk1.0-0 libatk-bridge2.0-0 \
-    libcups2 libdrm2 libxkbcommon0 \
-    libxcomposite1 libxdamage1 libxfixes3 \
-    libxrandr2 libgbm1 libasound2
-
-# 必须添加 --no-sandbox 参数运行
-```
-
-运行容器时：
-
-```bash
-docker run --cap-add SYS_ADMIN splayer-container
-```
-
 ## 验证修复
 
 修复后，验证应用是否正常启动：

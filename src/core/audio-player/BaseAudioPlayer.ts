@@ -372,15 +372,11 @@ export abstract class BaseAudioPlayer
 
       for (let i = 0; i < steps; i++) {
         const t = i / (steps - 1);
-        let val = 0;
 
-        if (targetValue > currentValue) {
-          const factor = Math.sin((t * Math.PI) / 2);
-          val = currentValue + (targetValue - currentValue) * factor;
-        } else {
-          const factor = Math.cos((t * Math.PI) / 2);
-          val = targetValue + (currentValue - targetValue) * factor;
-        }
+        const val =
+          targetValue > currentValue
+            ? currentValue + (targetValue - currentValue) * Math.sin((t * Math.PI) / 2)
+            : targetValue + (currentValue - targetValue) * Math.cos((t * Math.PI) / 2);
         curveData[i] = val;
       }
       this.gainNode.gain.setValueCurveAtTime(curveData, safeStartTime, duration);

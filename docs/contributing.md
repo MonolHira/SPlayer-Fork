@@ -37,7 +37,7 @@
 
 请参考 [使用指南](/guide.html#🛠-本地开发环境) 完成以下准备工作：
 
-1. 安装 Node.js (v18+)
+1. 安装 Node.js (v24+)
 2. 安装 pnpm
 3. 安装 Git
 4. 克隆仓库并安装依赖
@@ -47,7 +47,7 @@
 
 ### 1. Fork 仓库
 
-访问 [SPlayer 仓库](https://github.com/SPlayer-Dev/SPlayer)，点击右上角 **Fork** 按钮复制仓库到你的账号。
+访问 [SPlayer-Fork 仓库](https://github.com/MonolHira/SPlayer-Fork)，点击右上角 **Fork** 按钮复制仓库到你的账号。
 
 ### 2. 克隆你的 Fork
 
@@ -57,15 +57,15 @@ git clone https://github.com/YOUR_USERNAME/SPlayer.git
 cd SPlayer
 
 # 添加上游仓库
-git remote add upstream https://github.com/SPlayer-Dev/SPlayer.git
+git remote add upstream https://github.com/MonolHira/SPlayer-Fork.git
 
 # 验证远程仓库配置
 git remote -v
 # 应显示:
 # origin    https://github.com/YOUR_USERNAME/SPlayer.git (fetch)
 # origin    https://github.com/YOUR_USERNAME/SPlayer.git (push)
-# upstream  https://github.com/SPlayer-Dev/SPlayer.git (fetch)
-# upstream  https://github.com/SPlayer-Dev/SPlayer.git (push)
+# upstream  https://github.com/MonolHira/SPlayer-Fork.git (fetch)
+# upstream  https://github.com/MonolHira/SPlayer-Fork.git (push)
 ```
 
 ### 3. 同步上游更新
@@ -77,13 +77,13 @@ git remote -v
 git fetch upstream
 
 # 切换到主分支
-git checkout main
+git checkout dev
 
 # 合并上游更新
-git merge upstream/main
+git merge upstream/dev
 
 # 推送到你的 Fork
-git push origin main
+git push origin dev
 ```
 
 ### 4. 创建功能分支
@@ -215,7 +215,7 @@ SPlayer/
 git fetch upstream
 
 # 在你的功能分支上 rebase
-git rebase upstream/main
+git rebase upstream/dev
 
 # 解决冲突后继续
 git add .
@@ -245,7 +245,7 @@ git commit --amend -m "新的提交信息"
 
 如果您在贡献过程中遇到问题：
 
-1. 查阅项目 [Issues](https://github.com/SPlayer-Dev/SPlayer/issues)
+1. 查阅项目 [Issues](https://github.com/MonolHira/SPlayer-Fork/issues)
 2. 提交新 Issue 描述您的问题
 
 感谢您的贡献！🎉

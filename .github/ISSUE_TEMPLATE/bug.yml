@@ -47,7 +47,7 @@ body:
       required: false
     attributes:
       label: "当前 Node.js 及 npm 版本"
-      placeholder: "如：v18.16.0 / v9.6.7 (选填)"
+      placeholder: "如：v24.13.0 / v11.2.0 (选填)"
 
   - type: input
     validations:
@@ -57,7 +57,7 @@ body:
       description: |
         填写关于软件里的或 Releases 中版本号即可 <br />
         如果是自行构建或从 GitHub Actions 下载的开发版，还需要提供 Commit ID
-      placeholder: "如：v1.0.0"
+      placeholder: "如：v3.2.1"
 
   - type: textarea
     id: other

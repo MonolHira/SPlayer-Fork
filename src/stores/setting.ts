@@ -142,14 +142,7 @@ export interface SettingState {
   proxyPort: number;
   /** 歌曲音质 */
   songLevel:
-    | "standard"
-    | "higher"
-    | "exhigh"
-    | "lossless"
-    | "hires"
-    | "jyeffect"
-    | "sky"
-    | "jymaster";
+    "standard" | "higher" | "exhigh" | "lossless" | "hires" | "jyeffect" | "sky" | "jymaster";
   /** 播放设备 */
   playDevice: "default" | string;
   /** 音频引擎: element (原生) 或 ffmpeg */
@@ -514,7 +507,7 @@ export const useSettingStore = defineStore("setting", {
     closeAppMethod: "hide",
     showTaskbarProgress: false,
     taskbarLyricUseThemeColor: false,
-    checkUpdateOnStart: true,
+    checkUpdateOnStart: false,
     preventSleep: false,
     useKeepAlive: true,
     songLevel: "exhigh",

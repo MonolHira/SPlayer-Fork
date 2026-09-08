@@ -281,8 +281,8 @@ class LyricManager {
         if (!sName || sName !== targetName) continue;
 
         const sAlbum = this.normalizeMatchName(s?.al?.name);
-        const sArtists = (s?.ar ?? []).map(
-          (a: { name?: string }) => this.normalizeMatchName(a?.name),
+        const sArtists = (s?.ar ?? []).map((a: { name?: string }) =>
+          this.normalizeMatchName(a?.name),
         );
 
         let score = 0;

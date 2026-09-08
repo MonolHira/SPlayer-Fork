@@ -308,7 +308,7 @@
 {
   "name": "SPlayer API",
   "description": "SPlayer API service",
-  "author": "@imsyy",
+  "author": "@MonolHira",
   "list": [
     {
       "name": "NeteaseCloudMusicApi",

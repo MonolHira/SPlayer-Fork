@@ -1,4 +1,4 @@
-name: Build
+name: Build Release
 
 on:
   push:
@@ -26,7 +26,10 @@ jobs:
         include:
           - name: Windows x64
             runner: windows-latest
-            target: windows-x64
+            arch: x64
+          - name: Windows arm64
+            runner: windows-latest
+            arch: arm64
 
     # 开始步骤
     steps:
@@ -37,7 +40,7 @@ jobs:
       - name: Setup pnpm & Node.js
         uses: pnpm/setup@v2
         with:
-            install: false
+          install: false
       - run: node --version
       - run: pnpm --version
       # 设置 Rust
@@ -78,14 +81,15 @@ jobs:
       # 安装项目依赖
       - name: Install dependencies
         run: pnpm install
+        run: pnpm postinstall
 
       # 构建 Electron App
-      - name: Build
+      - name: Build Release
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
-        run: pnpm build:win -- --x64
+        run: pnpm build:win -- --${{ matrix.arch }}
 
       # 合并所有构建
       - name: Upload Artifact
@@ -103,7 +107,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -130,7 +133,7 @@ jobs:
           echo "待发布资源："
           ls -1 release-assets
 
-      # 用官方 gh CLI 确定性创建并发布 Release（替代有重复草稿/竞态问题的第三方 action）
+      # 用官方 gh CLI 确定性创建并直接发布 Release
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -146,5 +149,4 @@ jobs:
             --title "$TAG" \
             --generate-notes \
             --verify-tag \
-            --draft \
             release-assets/*

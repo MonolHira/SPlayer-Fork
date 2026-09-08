@@ -1,5 +1,6 @@
 import { is } from "@electron-toolkit/utils";
 import { app } from "electron";
+import packageJson from "../../../package.json";
 
 /**
  * 是否为开发环境
@@ -25,6 +26,37 @@ export const appVersion = app.getVersion();
  * @returns string
  */
 export const appName = app.getName() || "SPlayer";
+
+/**
+ * 更新源仓库所有者（从 package.json 的 github 字段解析）
+ * @returns string
+ */
+export const updateOwner = ((): string => {
+  try {
+    const url = packageJson.github || "";
+    // 支持 https://github.com/owner/repo 或 github:owner/repo 两种形式
+    const match =
+      url.match(/github\.com\/([^/]+)\/([^/]+)/) || url.match(/github:([^/]+)\/([^/]+)/);
+    return match?.[1] || "SPlayer-Dev";
+  } catch {
+    return "SPlayer-Dev";
+  }
+})();
+
+/**
+ * 更新源仓库名（从 package.json 的 github 字段解析）
+ * @returns string
+ */
+export const updateRepo = ((): string => {
+  try {
+    const url = packageJson.github || "";
+    const match =
+      url.match(/github\.com\/([^/]+)\/([^/]+)/) || url.match(/github:([^/]+)\/([^/]+)/);
+    return match?.[2]?.replace(/\.git$/, "") || "SPlayer";
+  } catch {
+    return "SPlayer";
+  }
+})();
 
 /**
  * 服务器端口

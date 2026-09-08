@@ -12,7 +12,6 @@ import { handleSongQuality, shuffleArray, sleep } from "@/utils/helper";
 import lastfmScrobbler from "@/utils/lastfmScrobbler";
 import { DJ_MODE_KEYWORDS } from "@/utils/meta";
 import { calculateProgress } from "@/utils/time";
-import type { LyricLine } from "@applemusic-like-lyrics/lyric";
 import { type DebouncedFunc, throttle } from "lodash-es";
 import { useBlobURLManager } from "../resource/BlobURLManager";
 import { useAudioManager } from "./AudioManager";
@@ -93,19 +92,17 @@ class PlayerController {
       return 1;
     }
     const { trackGain, albumGain, trackPeak, albumPeak } = song.replayGain;
-    let targetGain = 1;
     // 优先使用指定模式的增益，如果不存在则回退到另一种
     // 如果 .ratio 存在，则直接使用线性值
-    if (settingStore.replayGainMode === "album") {
-      targetGain = albumGain ?? trackGain ?? 1;
-    } else {
-      targetGain = trackGain ?? albumGain ?? 1;
-    }
+    const baseGain =
+      settingStore.replayGainMode === "album"
+        ? (albumGain ?? trackGain ?? 1)
+        : (trackGain ?? albumGain ?? 1);
     // 简单防削波保护
     const peak =
       settingStore.replayGainMode === "album" ? (albumPeak ?? trackPeak) : (trackPeak ?? albumPeak);
     // 应用 Automix 增益
-    targetGain *= automixManager.automixGain;
+    let targetGain = baseGain * automixManager.automixGain;
     if (peak && peak > 0) {
       if (targetGain * peak > 1.0) {
         targetGain = 1.0 / peak;
@@ -755,12 +752,9 @@ class PlayerController {
       const songId = musicStore.playSong?.id;
       const offset = statusStore.getSongOffset(songId);
       const useYrc = !!(settingStore.showWordLyrics && musicStore.songLyric.yrcData?.length);
-      let rawLyrics: LyricLine[] = [];
-      if (useYrc) {
-        rawLyrics = toRaw(musicStore.songLyric.yrcData);
-      } else {
-        rawLyrics = toRaw(musicStore.songLyric.lrcData);
-      }
+      const rawLyrics = useYrc
+        ? toRaw(musicStore.songLyric.yrcData)
+        : toRaw(musicStore.songLyric.lrcData);
       const lyricIndex = calculateLyricIndex(currentTime, rawLyrics, offset);
       // 更新状态
       statusStore.$patch({

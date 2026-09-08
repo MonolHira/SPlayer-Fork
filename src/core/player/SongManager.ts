@@ -295,14 +295,12 @@ class SongManager {
     }
 
     // 获取音源列表
-    let servers: SongUnlockServer[] = [];
-    if (specificSource && specificSource !== "auto") {
-      servers = [specificSource as SongUnlockServer];
-    } else {
-      servers = settingStore.songUnlockServer
-        .filter((s) => s.enabled)
-        .map((s) => s.key as SongUnlockServer);
-    }
+    const servers: SongUnlockServer[] =
+      specificSource && specificSource !== "auto"
+        ? [specificSource as SongUnlockServer]
+        : settingStore.songUnlockServer
+            .filter((s) => s.enabled)
+            .map((s) => s.key as SongUnlockServer);
 
     if (servers.length === 0) {
       return { id: songId, url: undefined };

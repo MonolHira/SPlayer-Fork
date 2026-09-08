@@ -2,17 +2,6 @@
   <div class="setting-type">
     <div class="set-list">
       <n-h3 prefix="bar"> 关于软件 </n-h3>
-      <n-alert type="warning" style="margin-bottom: 12px">
-        <template #header>本项目已进入维护模式</template>
-        后续仅进行必要的维护与重大问题修复，不再主动开发新功能。新功能及后续版本请移步
-        <n-button
-          text
-          type="primary"
-          @click="openLink('https://github.com/SPlayer-Dev/SPlayer-Next')"
-        >
-          SPlayer-Next
-        </n-button>
-      </n-alert>
       <n-card class="set-item">
         <n-flex align="center" class="about">
           <SvgIcon name="SPlayer" size="26" />
@@ -58,54 +47,6 @@
           </n-collapse>
         </n-card>
       </n-collapse-transition>
-    </div>
-    <div class="set-list">
-      <n-h3 prefix="bar"> 特别鸣谢 </n-h3>
-      <n-flex vertical :size="12" style="margin-bottom: 12px">
-        <n-text :depth="3" style="margin-left: 4px; font-size: 12px" class="tip">
-          注：以下排名不分先后
-        </n-text>
-        <n-card
-          v-for="(item, index) in specialContributors"
-          :key="index"
-          class="special-contributor-item"
-          hoverable
-        >
-          <n-flex justify="space-between" align="center" :wrap="false">
-            <n-flex align="center" style="flex: 1; min-width: 0">
-              <n-avatar
-                round
-                :size="48"
-                :src="item.avatar"
-                fallback-src="/images/avatar.jpg?asset"
-              />
-              <n-flex vertical :gap="4" style="flex: 1; min-width: 0">
-                <n-text class="name" strong>{{ item.name }}</n-text>
-                <n-text class="tip" :depth="3">{{ item.description }}</n-text>
-              </n-flex>
-            </n-flex>
-            <n-button secondary strong @click="openLink(item.url)">
-              {{ item.buttonText }}
-            </n-button>
-          </n-flex>
-        </n-card>
-      </n-flex>
-      <n-flex :size="12" class="link">
-        <n-card
-          v-for="(item, index) in contributors"
-          :key="index"
-          class="link-item"
-          hoverable
-          @click="openLink(item.url)"
-        >
-          <n-flex vertical :gap="4">
-            <n-text class="name" strong> {{ item.name }} </n-text>
-            <n-text class="tip" :depth="3" style="font-size: 12px">
-              {{ item.description }}
-            </n-text>
-          </n-flex>
-        </n-card>
-      </n-flex>
     </div>
     <div class="set-list">
       <n-h3 prefix="bar"> 开发人员 </n-h3>
@@ -169,21 +110,6 @@
       </div>
     </Transition>
     <div class="set-list">
-      <n-h3 prefix="bar"> 社区与资讯 </n-h3>
-      <n-flex :size="12" class="link">
-        <n-card
-          v-for="(item, index) in communityData"
-          :key="index"
-          class="link-item"
-          hoverable
-          @click="openLink(item.url)"
-        >
-          <SvgIcon :name="item.icon" :size="26" />
-          <n-text class="name"> {{ item.name }} </n-text>
-        </n-card>
-      </n-flex>
-    </div>
-    <div class="set-list">
       <n-h3 prefix="bar"> 历史版本 </n-h3>
       <n-collapse-transition :show="oldVersion?.length > 0">
         <n-collapse accordion>
@@ -238,6 +164,26 @@ type DeveloperType = {
 const developers = ref<DeveloperType[]>([]);
 const allContributors = ref<DeveloperType[]>([]);
 
+// 从 package.json 的 github 字段解析仓库所有者（Fork 后自动跟随）
+const updateOwner = ((): string => {
+  try {
+    const url = packageJson.github || "";
+    const match =
+      url.match(/github\.com\/([^/]+)\/([^/]+)/) || url.match(/github:([^/]+)\/([^/]+)/);
+    return match?.[1] || "";
+  } catch {
+    return "";
+  }
+})();
+
+// 手动添加的开发人员
+const manualDeveloper: DeveloperType = {
+  name: updateOwner || packageJson.author || "SPlayer",
+  role: "当前分支维护者",
+  url: updateOwner ? `https://github.com/${updateOwner}` : packageJson.github,
+  avatar: `https://github.com/${updateOwner}.png?size=96`,
+};
+
 // 获取贡献者
 const getContributors = async () => {
   try {
@@ -254,84 +200,18 @@ const getContributors = async () => {
           url: item.html_url || "",
           avatar: item.avatar_url || "/images/avatar.jpg?asset",
         }));
-      developers.value = list.slice(0, 6);
-      allContributors.value = list.slice(6);
+      // 手动条目置顶（若 API 已包含该作者则去重）
+      const filtered = list.filter((item: any) => item.name !== manualDeveloper.name);
+      developers.value = [manualDeveloper, ...filtered.slice(0, 6)];
+      allContributors.value = filtered.slice(6);
     }
   } catch (error) {
+    // API 拉取失败时仍显示手动添加的开发人员
     console.error("Failed to fetch contributors:", error);
+    developers.value = [manualDeveloper];
+    allContributors.value = [];
   }
 };
-
-// 特别鸣谢
-const contributors = [
-  {
-    name: "NeteaseCloudMusicApiEnhanced",
-    url: "https://github.com/neteasecloudmusicapienhanced/api-enhanced",
-    description: "网易云音乐 API 备份 + 增强",
-  },
-  {
-    name: "applemusic-like-lyrics",
-    url: "https://github.com/Steve-xmh/applemusic-like-lyrics",
-    description: "类 Apple Music 歌词显示组件库",
-  },
-  {
-    name: "NeteaseCloudMusicApi",
-    url: "https://github.com/Binaryify/NeteaseCloudMusicApi",
-    description: "网易云音乐 API",
-  },
-  {
-    name: "UnblockNeteaseMusic",
-    url: "https://github.com/UnblockNeteaseMusic/server",
-    description: "Revive unavailable songs for Netease Cloud Music",
-  },
-];
-
-// 贡献人员列表
-const specialContributors = [
-  {
-    name: "imsyy",
-    description: "每天在屎山和 PR 之间徘徊的作者",
-    avatar: "/images/avatar/imsyy.webp",
-    buttonText: "个人主页",
-    url: "https://imsyy.top",
-  },
-  {
-    name: "Kazukokawagawa 池鱼鱼！",
-    description:
-      "这里是什么？万能的池鱼！在开发过程中找出了一堆没人能想得到的诡异Bug，有非同寻常的Bug体质，可以用2天写完别人一个月commit",
-    avatar: "/images/avatar/chiyu.webp",
-    buttonText: "个人博客",
-    url: "https://chiyu.it/",
-  },
-  {
-    name: "MoYingJi",
-    description: "这个人一点都不神秘，虽然写了一点，但就像什么都没有写",
-    avatar: "/images/avatar/moyingji.webp",
-    buttonText: "GitHub",
-    url: "https://github.com/MoYingJi",
-  },
-  {
-    name: "apoint123",
-    description: "Rustacean",
-    avatar: "/images/avatar/apoint123.webp",
-    buttonText: "GitHub",
-    url: "https://github.com/apoint123",
-  },
-];
-
-// 社区数据
-const communityData = [
-  {
-    name: "GitHub",
-    url: packageJson.github,
-    icon: "Github",
-  },
-  {
-    name: "官方博客",
-    url: packageJson.blog,
-    icon: "RssFeed",
-  },
-];
 
 // 更新日志数据
 const updateData = ref<UpdateLogType[] | null>(null);
@@ -406,7 +286,7 @@ onMounted(() => {
   }
 }
 .update-data {
-  :deep(.n-card__content) {
+  :deep(.n-card-content) {
     flex-direction: column !important;
     align-items: normal !important;
   }
@@ -430,19 +310,12 @@ onMounted(() => {
 .link-item {
   border-radius: 8px;
   cursor: pointer;
-  :deep(.n-card__content) {
+  :deep(.n-card-content) {
     display: flex;
     padding: 12px;
   }
   .n-icon {
     margin-right: 6px;
-  }
-}
-.special-contributor-item {
-  border-radius: 8px;
-  cursor: default;
-  :deep(.n-card__content) {
-    padding: 12px 16px;
   }
 }
 </style>

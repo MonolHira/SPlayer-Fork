@@ -7,7 +7,8 @@ import type { LyricConfig } from "../../../src/types/desktop-lyric";
 import { storeLog } from "../logger";
 import { defaultAMLLDbServer } from "../utils/config";
 
-storeLog.info("🌱 Store init");
+// 单例实例（惰性初始化）
+let storeInstance: Store<StoreType> | null = null;
 
 export interface StoreType {
   /** 窗口 */
@@ -78,13 +79,17 @@ export interface StoreType {
 }
 
 /**
- * 使用 Store
+ * 使用 Store（单例）
+ * 注意：defaults 依赖 screen / app.getPath，须在 app ready 后首次调用
  * @returns Store<StoreType>
  */
-export const useStore = () => {
+export const useStore = (): Store<StoreType> => {
+  if (storeInstance) {
+    return storeInstance;
+  }
   // 获取主屏幕
   const screenData = screen.getPrimaryDisplay();
-  return new Store<StoreType>({
+  storeInstance = new Store<StoreType>({
     defaults: {
       window: {
         width: 1280,
@@ -120,4 +125,6 @@ export const useStore = () => {
       enableDownloadHttp2: true,
     },
   });
+  storeLog.info("🌱 Store init");
+  return storeInstance;
 };

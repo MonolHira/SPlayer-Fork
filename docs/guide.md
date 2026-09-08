@@ -6,45 +6,13 @@
 
 ### 客户端下载
 
-前往 [GitHub Releases](https://github.com/SPlayer-Dev/SPlayer/releases) 下载对应系统的安装包：
+前往 [GitHub Releases](https://github.com/MonolHira/SPlayer-Fork/releases) 下载对应系统的安装包：
 
 | 系统    | 安装包格式                        |
 | ------- | --------------------------------- |
 | Windows | `.exe` (安装版) / `.zip` (便携版) |
 | macOS   | `.dmg`                            |
 | Linux   | `.AppImage` / `.deb` / ...        |
-
-### Docker 部署 (仅 Web 版)
-
-#### 本地构建
-
-> 建议拉取最新代码后本地构建，在线镜像可能更新不及时
-
-```bash
-# 构建镜像
-docker build -t splayer .
-
-# 运行容器
-docker run -d --name SPlayer -p 25884:25884 splayer
-
-# 或使用 Docker Compose
-docker-compose up -d
-```
-
-#### 在线拉取
-
-```bash
-# 从 Docker Hub 拉取
-docker pull imsyy/splayer:latest
-
-# 从 GitHub Container Registry 拉取
-docker pull ghcr.io/imsyy/splayer:latest
-
-# 运行容器
-docker run -d --name SPlayer -p 25884:25884 imsyy/splayer:latest
-```
-
-启动成功后访问 `http://localhost:25884`
 
 ### Vercel 部署
 
@@ -62,8 +30,8 @@ docker run -d --name SPlayer -p 25884:25884 imsyy/splayer:latest
 
 ### 系统要求
 
-- **Node.js**: v22.0.0 或更高版本 (推荐 v24 LTS)
-- **pnpm**: v8.0.0 或更高版本
+- **Node.js**: v24.0.0 或更高版本 (推荐 v24 LTS)
+- **pnpm**: v12.0.0 或更高版本
 - **Git**: 最新版本
 - **操作系统**: Windows 10+, macOS 10.15+, 或 Linux
 
@@ -88,7 +56,7 @@ nvm install 24
 验证安装：
 
 ```bash
-node --version   # 应显示 v22.x.x 或更高
+node --version   # 应显示 v24.x.x 或更高
 npm --version
 ```
 
@@ -133,7 +101,7 @@ cargo --version
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/SPlayer-Dev/SPlayer.git
+git clone https://github.com/MonolHira/SPlayer-Fork.git
 cd SPlayer
 
 # 2. 安装依赖
@@ -152,17 +120,17 @@ pnpm dev
 
 ### 常用开发命令
 
-| 命令                | 说明                                 |
-| ------------------- | ------------------------------------ |
-| `pnpm dev`          | 启动开发服务器 (Electron + Vite HMR) |
-| `pnpm dev:web`      | 仅启动 Web 版开发服务器              |
-| `pnpm build`        | 构建 Web 版生产包                    |
-| `pnpm build:win`    | 构建 Windows 客户端                  |
-| `pnpm build:mac`    | 构建 macOS 客户端                    |
-| `pnpm build:linux`  | 构建 Linux 客户端                    |
-| `pnpm build:native` | 构建原生插件                         |
-| `pnpm lint`         | 运行代码检查                         |
-| `pnpm format`       | 格式化代码                           |
+| 命令       | 说明                                 |
+| ---------- | ------------------------------------ |
+| `pnpm dev` | 启动开发服务器 (Electron + Vite HMR) |
+
+| `pnpm build` | 构建 Web 版生产包 |
+| `pnpm build:win` | 构建 Windows 客户端 |
+| `pnpm build:mac` | 构建 macOS 客户端 |
+| `pnpm build:linux` | 构建 Linux 客户端 |
+| `pnpm build:native` | 构建原生插件 |
+| `pnpm lint` | 运行代码检查 |
+| `pnpm format` | 格式化代码 |
 
 ### 构建客户端
 
@@ -224,7 +192,7 @@ pnpm build:win -- --x64 --arm64
 
 特此感谢为本项目提供支持与灵感的项目
 
-- [NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi)
+- [NeteaseCloudMusicApi](https://github.com/neteasecloudmusicapienhanced/api-enhanced)
 - [YesPlayMusic](https://github.com/qier222/YesPlayMusic)
 - [UnblockNeteaseMusic](https://github.com/UnblockNeteaseMusic/server)
 - [applemusic-like-lyrics](https://github.com/Steve-xmh/applemusic-like-lyrics)

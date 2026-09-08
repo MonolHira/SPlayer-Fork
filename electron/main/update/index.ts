@@ -1,16 +1,16 @@
 import { type BrowserWindow } from "electron";
 import { updateLog } from "../logger";
 import electronUpdater from "electron-updater";
-import { isDev } from "../utils/config";
+import { isDev, updateOwner, updateRepo } from "../utils/config";
 
 // import
 const { autoUpdater } = electronUpdater;
 
-// 更新源
+// 更新源（从 package.json 的 github 字段解析，支持 Fork 后指向自己的仓库）
 autoUpdater.setFeedURL({
   provider: "github",
-  owner: "SPlayer-Dev",
-  repo: "SPlayer",
+  owner: updateOwner,
+  repo: updateRepo,
 });
 
 // 禁用自动下载
